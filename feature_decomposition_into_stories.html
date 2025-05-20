@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feature Decomposition into Stories</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@tailwindcss/browser@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* gray-100 */
+        }
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 1rem;
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.06);
+        }
+        h1 {
+            font-size: 2.25rem; /* text-3xl */
+            font-weight: 700; /* font-bold */
+            color: #1f2937; /* gray-800 */
+            margin-bottom: 1.5rem; /* mb-6 */
+        }
+        h2 {
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 600; /* font-semibold */
+            color: #374151; /* gray-700 */
+            margin-bottom: 1rem; /* mb-4 */
+        }
+        p {
+            font-size: 1rem; /* text-base */
+            color: #4b5563; /* gray-600 */
+            line-height: 1.75rem; /* leading-relaxed */
+            margin-bottom: 1rem; /* mb-4 */
+        }
+        ul {
+            list-style-position: inside;
+            padding-left: 0;
+            margin-bottom: 1rem; /* mb-4 */
+        }
+        ul li {
+            font-size: 1rem; /* text-base */
+            color: #4b5563; /* gray-600 */
+            line-height: 1.75rem; /* leading-relaxed */
+        }
+        ol {
+            list-style-position: inside;
+            padding-left: 0;
+            margin-bottom: 1rem; /* mb-4 */
+        }
+        ol li {
+            font-size: 1rem; /* text-base */
+            color: #4b5563; /* gray-600 */
+            line-height: 1.75rem; /* leading-relaxed */
+        }
+        .example-box {
+            background-color: #f7fafc; /* gray-100 */
+            border: 1px solid #e2e8f0; /* gray-200 */
+            padding: 1rem; /* p-4 */
+            margin-bottom: 1rem; /* mb-4 */
+            border-radius: 0.375rem; /* rounded-md */
+        }
+        .example-box h3{
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.75rem;
+        }
+        .highlight {
+            background-color: #fef08a; /* yellow-100 */
+            color: #1e293b; /* gray-900 */
+            padding: 0.2em;
+            border-radius: 0.375rem; /* rounded-md */
+            font-weight: 600;
+        }
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        th {
+            font-weight: 600;
+            color: #4b5563;
+            background-color: #f7fafc;
+        }
+        tbody tr:hover {
+            background-color: #f7fafc;
+        }
+        @media (max-width: 640px) {
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+            th, td {
+                white-space: nowrap;
+            }
+        }
+        .button-container {
+            text-align: center;
+            margin-top: 2rem;
+        }
+        .button-container button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            border: none;
+            background-color: #3b82f6; /* blue-500 */
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.06);
+            transition: background-color 0.3s ease;
+        }
+        .button-container button:hover {
+            background-color: #2563eb; /* blue-700 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="container">
+        <h1>Feature Decomposition into Stories</h1>
+        <h2>What is a Feature?</h2>
+        <p>
+            In Agile software development, a <span class="highlight">feature</span> is a distinct piece of functionality that provides value to the end-user.  It's larger than a story and represents a significant chunk of work.  Features are typically broken down into smaller units called user stories.
+        </p>
+        <h2>Why Decompose Features into Stories?</h2>
+        <ul>
+            <li><span class="font-semibold">Manageability:</span> Smaller stories are easier to estimate, plan, and track.</li>
+            <li><span class="font-semibold">Iterative Development:</span> Stories enable incremental progress and faster feedback.</li>
+            <li><span class="font-semibold">Improved Collaboration:</span> Stories facilitate clearer communication within the development team.</li>
+            <li><span class="font-semibold">Accurate Estimation:</span> Stories are small enough to provide more accurate estimations.</li>
+            <li><span class="font-semibold">Testability:</span> Smaller stories are easier to test.</li>
+        </ul>
+        <h2>How to Decompose a Feature</h2>
+        <ol>
+            <li><span class="font-semibold">Identify the Feature:</span> Start with a clear understanding of the feature's purpose and value.  For example: "User Authentication".</li>
+            <li><span class="font-semibold">Break it Down:</span> Decompose the feature into smaller, more manageable user stories.  Each story should represent a specific, testable piece of functionality.</li>
+            <li><span class="font-semibold">Apply INVEST Criteria:</span> Ensure each story is Independent, Negotiable, Valuable, Estimable, Small, and Testable.</li>
+            <li><span class="font-semibold">Refine:</span> Review and refine the stories with the development team and stakeholders.</li>
+        </ol>
+        <h2>INVEST Criteria</h2>
+        <p>
+            A good user story should adhere to the INVEST criteria:
+        </p>
+        <ul>
+            <li><span class="font-semibold">Independent:</span> Stories should be self-contained and not overlap with others.</li>
+            <li><span class="font-semibold">Negotiable:</span> The details of the story can be discussed and refined.</li>
+            <li><span class="font-semibold">Valuable:</span> The story delivers value to the end-user.</li>
+            <li><span class="font-semibold">Estimable:</span> The story can be estimated in terms of effort.</li>
+            <li><span class="font-semibold">Small:</span> The story should be small enough to be completed within a single sprint.</li>
+            <li><span class="font-semibold">Testable:</span> The story should be written in a way that makes it testable.</li>
+        </ul>
+        <h2>Example: Decomposing the "User Authentication" Feature</h2>
+        <div class="example-box">
+            <h3>Feature:</h3>
+            <p>"User Authentication"</p>
+            <h3>User Stories:</h3>
+            <ul>
+                <li>As a user, I want to be able to register for a new account so that I can access the application.</li>
+                <li>As a user, I want to be able to log in to my account so that I can access my personalized data.</li>
+                <li>As a user, I want to be able to reset my password if I forget it, so that I can regain access to my account.</li>
+                <li>As an administrator, I want to be able to lock an account after multiple failed login attempts, so that the system is secure.</li>
+                <li>As a user, I want to be able to log out of my account, so that my session is secure.</li>
+            </ul>
+        </div>
+        <h2>From Feature to Tasks</h2>
+        <p>
+            Once you have your user stories, the development team will break them down into specific technical tasks.  For example, the "Implement Login" story might be broken down into tasks like:
+        </p>
+        <div class="example-box">
+            <h3>User Story:</h3>
+             <p>"As a user, I want to be able to log in to my account so that I can access my personalized data."</p>
+            <h3>Tasks:</h3>
+            <ul>
+                <li>Create login form UI</li>
+                <li>Implement login form validation</li>
+                <li>Create endpoint for login</li>
+                <li>Implement user authentication logic</li>
+                <li>Generate and store auth token</li>
+                <li>Write unit tests for login functionality</li>
+            </ul>
+        </div>
+
+        <h2>User Story Mapping</h2>
+        <p>
+            User story mapping is a valuable technique that helps visualize the user journey and organize user stories.  It ensures that the development team has a shared understanding of the product and its features.
+        </p>
+        <div class="table-container">
+            <table id="story-mapping-table">
+                <thead>
+                    <tr>
+                        <th>User Activity</th>
+                        <th>User Story</th>
+                        <th>Tasks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Account Management</td>
+                        <td>As a user, I want to register for an account.</td>
+                        <td>
+                            <ul>
+                                <li>Design registration form</li>
+                                <li>Implement registration form validation</li>
+                                 <li>Create endpoint for registration</li>
+                                <li>Create user model</li>
+                                <li>Send confirmation email</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>As a user, I want to log in to my account.</td>
+                        <td>
+                            <ul>
+                                <li>Design login form</li>
+                                <li>Implement login form validation</li>
+                                <li>Create endpoint for login</li>
+                                <li>Implement user authentication</li>
+                            </ul>
+                        </td>
+                    </tr>
+                     <tr>
+                        <td></td>
+                        <td>As a user, I want to reset my password.</td>
+                        <td>
+                            <ul>
+                                <li>Design password reset form</li>
+                                <li>Implement password reset form validation</li>
+                                <li>Create endpoint for password reset</li>
+                                <li>Send password reset email</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="button-container">
+            <button id="goToScrumBoard">Go to Scrum Board</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('goToScrumBoard').addEventListener('click', function() {
+            const table = document.getElementById('story-mapping-table');
+            const rows = table.querySelectorAll('tbody tr');
+            const decomposedStories = [];
+            let idCounter = 1;
+
+            rows.forEach(row => {
+                const storyCell = row.cells[1]; // Second cell contains the user story
+                if (storyCell) {
+                    const storyText = storyCell.textContent.trim();
+                    if (storyText) {
+                        decomposedStories.push({
+                            id: idCounter++,
+                            title: storyText.split('.')[0] + '.', // Take first sentence as title
+                            storyPoints: 5, // Default story points, can be made interactive later
+                            description: storyText,
+                            status: 'backlog' // Initial status for the game
+                        });
+                    }
+                }
+            });
+
+            sessionStorage.setItem('decomposedStories', JSON.stringify(decomposedStories));
+            // Navigate to the Scrum game page (assuming it's in the same directory or a known path)
+            window.location.href = 'agile_scrum_game.html'; // This path should match the file name of the game page
+        });
+    </script>
+</body>
+</html>
+

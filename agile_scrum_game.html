@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agile Scrum Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@tailwindcss/browser@latest"></script>
+    <style>
+        /* Custom styles for the game board */
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+            font-family: 'Inter', sans-serif;
+        }
+        #board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* To Do, In Progress, Done, Backlog */
+            gap: 1rem;
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 1rem;
+        }
+        .column {
+            background-color: #f3f4f6; /* gray-100 */
+            padding: 1rem;
+            border-radius: 0.5rem; /* rounded-md */
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.06); /* shadow-sm */
+            min-height: 200px;
+            position: relative; /* Make column a positioning context */
+        }
+        .column h2 {
+            font-size: 1.25rem; /* text-lg */
+            font-weight: 600; /* font-semibold */
+            margin-bottom: 0.75rem; /* mb-3 */
+            color: #4b5563; /* gray-600 */
+            display: flex; /* Use flexbox for alignment */
+            justify-content: space-between;
+            align-items: center;
+        }
+        .column h2 span {
+            font-size: 0.875rem; /* text-sm */
+            color: #6b7280; /* gray-500 */
+        }
+
+        .task-card {
+            background-color: white;
+            padding: 1rem;
+            margin-bottom: 0.75rem; /* mb-3 */
+            border-radius: 0.5rem; /* rounded-md */
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.06); /* shadow-sm */
+            cursor: grab;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Add this */
+            min-height: 80px; /* Ensure a minimum height for consistency */
+            position: relative; /* Needed for absolute positioning of buttons */
+        }
+        .task-card:active {
+            cursor: grabbing;
+            opacity: 0.7; /* Reduce opacity while dragging */
+            z-index: 10; /* Bring dragged card to front */
+        }
+        .task-title {
+            font-size: 1rem; /* text-base */
+            font-weight: 500; /* font-medium */
+            color: #1f2937; /* gray-800 */
+            margin-bottom: 0.25rem; /* mb-1 */
+            margin-left: 2.5rem; /* Add left margin to title */
+        }
+        .task-details {
+            font-size: 0.875rem; /* text-sm */
+            color: #6b7280; /* gray-500 */
+        }
+        #message-box {
+            background-color: #e5e7eb; /* gray-200 */
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 0.5rem; /* rounded-md */
+            text-align: center;
+            color: #374151; /* gray-700 */
+            width: 100%;
+            max-width: 600px;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .controls button {
+              padding: 0.75rem 1.5rem;
+              border-radius: 0.375rem;
+              font-weight: 600;
+              color: white;
+              cursor: pointer;
+              border: none;
+              box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.06);
+              transition: background-color 0.3s ease;
+        }
+
+        .controls button:hover {
+                filter: brightness(95%);
+        }
+
+        .controls button:disabled{
+            background-color: #9ca3af; /* gray-400 */
+            cursor: not-allowed;
+            filter: none;
+        }
+
+        .blue-button {
+            background-color: #3b82f6; /* blue-500 */
+        }
+        .blue-button:hover{
+             background-color: #2563eb; /* blue-700 */
+        }
+
+        .green-button {
+            background-color: #16a34a; /* green-500 */
+        }
+
+        .green-button:hover {
+             background-color: #15803d; /* green-700 */
+        }
+
+        .red-button {
+            background-color: #dc2626; /* red-500 */
+        }
+        .red-button:hover {
+            background-color: #b91c1c; /* red-700 */
+        }
+
+        #metrics {
+            margin-top: 2rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            background-color: #f9fafb;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.06);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        #metrics h3 {
+            font-size: 1.25rem;
+            font-semibold;
+            color: #4b5563;
+            margin-bottom: 0.75rem;
+        }
+
+        #metrics ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        #metrics li {
+            font-size: 1rem;
+            color: #6b7280;
+        }
+
+        .arrow-button {
+            position: absolute; /* Position absolutely within task card */
+            top: 0.5rem;
+            width: 2rem; /* Make buttons wider */
+            height: 2rem; /* Make buttons taller */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            background: none;
+            padding: 0;
+            font-size: 1.25rem; /* Increase icon size */
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+            z-index: 1; /* Ensure buttons are above card content */
+        }
+
+        .arrow-button:hover {
+            opacity: 1;
+        }
+
+        .up-arrow {
+            left: 0.5rem; /* Position at the left */
+        }
+
+        .down-arrow {
+            right: 0.5rem; /* Position at the right */
+        }
+        .top-buttons {
+            display: flex;
+            justify-content: flex-end; /* Align to the right */
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 1rem;
+        }
+        .top-buttons button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            border: none;
+            background-color: #6b7280; /* gray-500 */
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.06);
+            transition: background-color 0.3s ease;
+        }
+        .top-buttons button:hover {
+            background-color: #4b5563; /* gray-700 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4">
+    <div id="game-container">
+        <div class="top-buttons">
+            <button id="backToDecomposition">Back to Decomposition</button>
+        </div>
+        <h1 class="text-2xl font-semibold mb-4 text-gray-800">Agile Scrum Game</h1>
+        <div id="user-id-display" class="text-sm text-gray-500 mb-2">Loading User ID...</div>
+        <div id="board">
+            <div class="column" id="backlog">
+                <h2>Backlog <span>(0)</span></h2>
+                </div>
+            <div class="column" id="todo">
+                <h2>To Do <span>(0)</span></h2>
+                </div>
+            <div class="column" id="in-progress">
+                <h2>In Progress <span>(0)</span></h2>
+                </div>
+            <div class="column" id="done">
+                <h2>Done <span>(0)</span></h2>
+                </div>
+        </div>
+        <div id="message-box">
+            </div>
+        <div class="controls">
+            <button id="start-sprint" class="blue-button">Start Sprint</button>
+            <button id="finish-sprint" class="green-button" disabled>Finish Sprint</button>
+            <button id="reset-game" class="red-button">Reset Game</button>
+        </div>
+        <div id="metrics">
+                <h3>Metrics</h3>
+                <ul id="metrics-list">
+                    <li id="sprint-number">Sprint: 1</li>
+                    <li id="total-story-points">Total Story Points: 0</li>
+                    <li id="completed-story-points">Completed Story Points: 0</li>
+                    <li id="velocity">Velocity: 0</li>
+                </ul>
+            </div>
+    </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global variables provided by the Canvas environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let app;
+        let db;
+        let auth;
+        let userId = null;
+        let gameRef = null;
+        let isAuthReady = false; // Flag to ensure Firestore ops happen after auth
+
+        // Initialize Firebase and set up authentication
+        window.onload = async function() {
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        gameRef = doc(db, `artifacts/${appId}/users/${userId}/agile_game_state/current`);
+                        isAuthReady = true;
+                        // Ensure the user-id-display element exists before trying to access it
+                        const userIdDisplayEl = document.getElementById('user-id-display');
+                        if (userIdDisplayEl) {
+                            userIdDisplayEl.textContent = `User ID: ${userId}`;
+                        }
+                        displayMessage("Signed in. Loading game state...");
+                        await setupRealtimeListener();
+                    } else {
+                        // Sign in anonymously if no user is found
+                        try {
+                            if (initialAuthToken) {
+                                await signInWithCustomToken(auth, initialAuthToken);
+                            } else {
+                                await signInAnonymously(auth);
+                            }
+                        } catch (error) {
+                            console.error("Error signing in:", error);
+                            displayMessage("Error signing in. Please try again.");
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+                displayMessage("Error initializing Firebase. Please check console.");
+            }
+        };
+
+        // --- Game Logic (adapted for Firestore) ---
+
+        const defaultTasks = [
+            { id: 1, title: "Design UI", storyPoints: 3, description: "Create wireframes for the user interface.", status: "backlog" },
+            { id: 2, title: "Implement Login", storyPoints: 5, description: "Develop the user login functionality.", status: "backlog" },
+            { id: 3, title: "Database Setup", storyPoints: 8, description: "Set up the database and schema.", status: "backlog" },
+            { id: 4, title: "Create API", storyPoints: 8, description: "Build the API endpoints for data access.", status: "backlog" },
+            { id: 5, title: "Testing", storyPoints: 5, description: "Write and run unit and integration tests.", status: "backlog" },
+            { id: 6, title: "Deployment", storyPoints: 3, description: "Deploy the application to the staging environment.", status: "backlog" },
+            { id: 7, title: "Documentation", storyPoints: 2, description: "Write API and user documentation.", status: "backlog" },
+            { id: 8, title: "Bug Fixes", storyPoints: 4, description: "Fix any bugs reported during testing.", status: "backlog" },
+        ];
+
+        let tasks = [];
+        let sprintNumber = 1;
+        let totalStoryPoints = 0;
+        let completedStoryPoints = 0;
+        let velocity = 0;
+        let currentSprintTasks = [];
+
+        const backlogEl = document.getElementById("backlog");
+        const todoEl = document.getElementById("todo");
+        const inProgressEl = document.getElementById("in-progress");
+        const doneEl = document.getElementById("done");
+        const messageBox = document.getElementById("message-box");
+        const startSprintButton = document.getElementById("start-sprint");
+        const finishSprintButton = document.getElementById("finish-sprint");
+        const resetButton = document.getElementById("reset-game");
+        const backToDecompositionButton = document.getElementById("backToDecomposition");
+
+        const sprintNumberEl = document.getElementById("sprint-number");
+        const totalStoryPointsEl = document.getElementById("total-story-points");
+        const completedStoryPointsEl = document.getElementById("completed-story-points");
+        const velocityEl = document.getElementById("velocity");
+
+
+        function displayMessage(message) {
+            messageBox.textContent = message;
+        }
+
+        async function setupRealtimeListener() {
+            if (!isAuthReady || !gameRef) {
+                console.warn("Firestore not ready, cannot set up listener.");
+                return;
+            }
+
+            onSnapshot(gameRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    tasks = data.tasks || [...defaultTasks];
+                    sprintNumber = data.sprintNumber || 1;
+                    velocity = data.velocity || 0;
+                    currentSprintTasks = data.currentSprintTasks || [];
+                    displayMessage("Game state loaded from cloud.");
+                    renderBoard();
+                    updateMetrics();
+                } else {
+                    // Document doesn't exist, initialize with default tasks or session storage data
+                    displayMessage("No existing game state found. Initializing new game...");
+                    const storedStories = sessionStorage.getItem('decomposedStories');
+                    if (storedStories) {
+                        tasks = JSON.parse(storedStories);
+                        displayMessage("Loaded stories from decomposition page and initializing new game.");
+                    } else {
+                        tasks = [...defaultTasks];
+                        displayMessage("Using default backlog tasks and initializing new game.");
+                    }
+                    tasks.forEach(task => task.status = "backlog"); // Ensure initial status
+                    sprintNumber = 1;
+                    velocity = 0;
+                    currentSprintTasks = [];
+                    saveGameState(); // Save the initial state to Firestore
+                }
+                // Enable buttons after load/initialization
+                startSprintButton.disabled = false;
+                finishSprintButton.disabled = false; // Will be re-disabled by game logic if no tasks in progress
+            }, (error) => {
+                console.error("Error listening to game state:", error);
+                displayMessage("Error loading game state. Please refresh.");
+            });
+        }
+
+        async function saveGameState() {
+            if (!isAuthReady || !gameRef) {
+                console.warn("Firestore not ready, cannot save game state.");
+                return;
+            }
+            try {
+                await setDoc(gameRef, {
+                    tasks: tasks,
+                    sprintNumber: sprintNumber,
+                    velocity: velocity,
+                    currentSprintTasks: currentSprintTasks,
+                    lastUpdated: new Date().toISOString() // Store as ISO string
+                }, { merge: true }); // Use merge to avoid overwriting entire document
+                // displayMessage("Game state saved."); // Too frequent, remove for now
+            } catch (error) {
+                console.error("Error saving game state:", error);
+                displayMessage("Error saving game state. Please check console.");
+            }
+        }
+
+        function renderBoard() {
+            backlogEl.innerHTML = "<h2>Backlog <span>(0)</span></h2>";
+            todoEl.innerHTML = "<h2>To Do <span>(0)</span></h2>";
+            inProgressEl.innerHTML = "<h2>In Progress <span>(0)</span></h2>";
+            doneEl.innerHTML = "<h2>Done <span>(0)</span></h2>";
+
+            let backlogPoints = 0;
+            let todoPoints = 0;
+            let inProgressPoints = 0;
+            let donePoints = 0;
+
+            // Sort tasks by their current order in the array to maintain visual order
+            // Filter tasks by status and append them to their respective columns
+            const backlogTasks = tasks.filter(task => task.status === "backlog");
+            const todoTasks = tasks.filter(task => task.status === "todo");
+            const inProgressTasks = tasks.filter(task => task.status === "in-progress");
+            const doneTasks = tasks.filter(task => task.status === "done");
+
+            [...backlogTasks, ...todoTasks, ...inProgressTasks, ...doneTasks].forEach(task => {
+                const taskCard = document.createElement("div");
+                taskCard.className = "task-card";
+                taskCard.setAttribute("data-task-id", task.id);
+                taskCard.setAttribute("draggable", true);
+                taskCard.innerHTML = `
+                    <h3 class="task-title">${task.title}</h3>
+                    <p class="task-details">Story Points: ${task.storyPoints}</p>
+                    <p class="task-details">${task.description}</p>
+                `;
+
+                // Create up and down arrow buttons
+                const upButton = document.createElement("button");
+                upButton.className = "arrow-button up-arrow";
+                upButton.textContent = "↑";
+                upButton.addEventListener("click", (event) => moveTask(event, task.id, "up"));
+                taskCard.appendChild(upButton);
+
+                const downButton = document.createElement("button");
+                downButton.className = "arrow-button down-arrow";
+                downButton.textContent = "↓";
+                downButton.addEventListener("click", (event) => moveTask(event, task.id, "down"));
+                taskCard.appendChild(downButton);
+
+
+                taskCard.addEventListener("dragstart", handleDragStart);
+                taskCard.addEventListener("dragend", handleDragEnd);
+
+
+                if (task.status === "todo") {
+                    todoEl.appendChild(taskCard);
+                    todoPoints += task.storyPoints;
+                } else if (task.status === "in-progress") {
+                    inProgressEl.appendChild(taskCard);
+                    inProgressPoints += task.storyPoints;
+                } else if (task.status === "done") {
+                    doneEl.appendChild(taskCard);
+                    donePoints += task.storyPoints;
+                } else if (task.status === "backlog"){ // Explicitly check for backlog
+                    backlogEl.appendChild(taskCard);
+                    backlogPoints += task.storyPoints;
+                }
+            });
+            //update points display
+            backlogEl.querySelector('span').textContent = `(${backlogPoints})`;
+            todoEl.querySelector('span').textContent = `(${todoPoints})`;
+            inProgressEl.querySelector('span').textContent = `(${inProgressPoints})`;
+            doneEl.querySelector('span').textContent = `(${donePoints})`;
+
+            updateMetrics();
+        }
+
+        function handleDragStart(event) {
+            event.dataTransfer.setData("text/plain", event.target.getAttribute("data-task-id"));
+            event.target.classList.add("dragging");
+        }
+
+        function handleDragEnd(event) {
+            event.target.classList.remove("dragging");
+            // Re-render the board to ensure correct order
+            renderBoard();
+            saveGameState(); // Save state after drag and drop
+        }
+
+        // Make drop targets
+        todoEl.addEventListener("dragover", handleDragOver);
+        inProgressEl.addEventListener("dragover", handleDragOver);
+        doneEl.addEventListener("dragover", handleDragOver);
+        backlogEl.addEventListener("dragover", handleDragOver); // Add for backlog
+
+        todoEl.addEventListener("drop", handleDrop);
+        inProgressEl.addEventListener("drop", handleDrop);
+        doneEl.addEventListener("drop", handleDrop);
+        backlogEl.addEventListener("drop", handleDrop); // Add for backlog
+
+
+        function handleDragOver(event) {
+            event.preventDefault(); // Necessary for drop to work
+            const draggedElement = document.querySelector(".dragging");
+            if (!draggedElement) return;
+
+            const target = event.target.closest(".column"); // Get the column element
+            if (target && target.classList.contains("column")) {
+                const afterElement = getDragAfterElement(target, event.clientY);
+                const draggable = document.querySelector(".dragging");
+                if (afterElement == null) {
+                    target.appendChild(draggable);
+                } else {
+                    target.insertBefore(draggable, afterElement);
+                }
+            }
+        }
+
+        function getDragAfterElement(column, y) {
+            const draggableElements = [...column.querySelectorAll(".task-card:not(.dragging)")];
+
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: -Infinity }).element;
+        }
+
+
+        function handleDrop(event) {
+            event.preventDefault();
+            const taskId = parseInt(event.dataTransfer.getData("text/plain"));
+            const targetColumnElement = event.target.closest(".column");
+
+            if (!targetColumnElement) return; // Dropped outside a column
+
+            const targetColumnId = targetColumnElement.id;
+
+            const task = tasks.find(t => t.id === taskId);
+
+             if (!task) {
+                console.error(`Task with ID ${taskId} not found.`);
+                return; // Important: Exit if task not found
+            }
+
+            // Update the task's status based on the target column
+            task.status = targetColumnId;
+
+            // Manage currentSprintTasks array
+            if (targetColumnId === "todo" && !currentSprintTasks.includes(taskId)) {
+                currentSprintTasks.push(taskId);
+            } else if (targetColumnId === "backlog") {
+                currentSprintTasks = currentSprintTasks.filter(id => id !== taskId);
+            }
+
+            // Reorder tasks array based on the new visual order in the target column
+            const reorderedTasksInColumn = Array.from(targetColumnElement.querySelectorAll(".task-card")).map(card => parseInt(card.getAttribute("data-task-id")));
+
+            // Filter out tasks that are not in the current column from the main tasks array
+            const otherTasks = tasks.filter(t => t.status !== targetColumnId);
+
+            // Reconstruct the tasks array with the new order for the target column
+            const newColumnTasks = reorderedTasksInColumn.map(id => tasks.find(t => t.id === id));
+            tasks = [...otherTasks, ...newColumnTasks];
+
+            renderBoard();
+            saveGameState(); // Save state after drag and drop
+        }
+
+
+        function calculateTotalStoryPoints() {
+            totalStoryPoints = tasks.reduce((sum, task) => sum + task.storyPoints, 0);
+            return totalStoryPoints;
+        }
+
+        function calculateCompletedStoryPoints() {
+           completedStoryPoints = tasks.reduce((sum, task) => {
+                if (task.status === "done") {
+                    return sum + task.storyPoints;
+                }
+                return sum;
+            }, 0);
+            return completedStoryPoints;
+        }
+
+        function calculateVelocity() {
+            // Velocity is story points completed in the *previous* sprint
+            return velocity;
+        }
+
+        function updateMetrics() {
+            sprintNumberEl.textContent = `Sprint: ${sprintNumber}`;
+            totalStoryPointsEl.textContent = `Total Story Points: ${calculateTotalStoryPoints()}`;
+            completedStoryPointsEl.textContent = `Completed Story Points: ${calculateCompletedStoryPoints()}`;
+            velocityEl.textContent = `Velocity: ${calculateVelocity()}`;
+        }
+
+        async function startSprint() {
+            if (currentSprintTasks.length === 0) {
+                displayMessage("Please add tasks from the backlog to the To Do column to start the sprint.");
+                return;
+            }
+            // Move tasks from ToDo to Current Sprint.  The tasks are already in currentSprintTasks
+            tasks.forEach(task => {
+                if (currentSprintTasks.includes(task.id) && task.status === "todo"){ // Only move if they are in 'todo'
+                     task.status = "in-progress"; // Move them to in-progress
+                }
+            });
+
+            startSprintButton.disabled = true;
+            finishSprintButton.disabled = false;
+            displayMessage(`Sprint ${sprintNumber} started!`);
+            renderBoard();
+            await saveGameState(); // Save state after starting sprint
+        }
+
+
+
+        async function finishSprint() {
+            const doneTasks = tasks.filter(task => task.status === "done");
+            if (doneTasks.length === 0) {
+                displayMessage("No tasks were completed in this sprint.");
+                return;
+            }
+
+            const completedPoints = calculateCompletedStoryPoints();
+            velocity = completedPoints;  //  current sprint's completed becomes next sprint's velocity.
+
+            sprintNumber++;
+            sprintNumberEl.textContent = `Sprint: ${sprintNumber}`;
+            completedStoryPointsEl.textContent = `Completed Story Points: 0`; //reset
+            velocityEl.textContent = `Velocity: ${velocity}`;
+
+            // Move undone tasks back to backlog for the *next* sprint.  In a real game, you might have different behavior.
+            tasks.forEach(task => {
+                if (task.status !== "done") {
+                    task.status = "backlog";
+                }
+            });
+            currentSprintTasks = []; // Clear current sprint tasks
+            startSprintButton.disabled = false;
+            finishSprintButton.disabled = true;
+            displayMessage(`Sprint ${sprintNumber - 1} finished!  Moving incomplete tasks to backlog.`);
+            renderBoard();
+            await saveGameState(); // Save state after finishing sprint
+        }
+
+        async function resetGame() {
+            sessionStorage.removeItem('decomposedStories'); // Clear stored stories on reset
+            tasks = [...defaultTasks]; // Reset to the initial task list
+            tasks.forEach(task => task.status = "backlog"); // Ensure initial status
+            sprintNumber = 1;
+            totalStoryPoints = 0;
+            completedStoryPoints = 0;
+            velocity = 0;
+            currentSprintTasks = []; // Clear current sprint
+            startSprintButton.disabled = false;
+            finishSprintButton.disabled = true;
+            messageBox.textContent = "Game reset!";
+            renderBoard();
+            await saveGameState(); // Save reset state
+        }
+
+        function moveTask(event, taskId, direction) {
+            event.stopPropagation(); // Prevent card dragging
+
+            const taskIndex = tasks.findIndex(task => task.id === taskId);
+            if (taskIndex === -1) return;
+
+            const task = tasks[taskIndex];
+            const columnId = task.status;
+
+            // Get all tasks currently in the same column as the moved task
+            const tasksInColumn = tasks.filter(t => t.status === columnId);
+            const currentCardIndexInColumn = tasksInColumn.findIndex(t => t.id === taskId);
+
+            if (direction === "up" && currentCardIndexInColumn > 0) {
+                // Find the task to swap with in the global tasks array
+                const taskToSwapWith = tasksInColumn[currentCardIndexInColumn - 1];
+                const taskToSwapWithIndex = tasks.findIndex(t => t.id === taskToSwapWith.id);
+
+                // Perform the swap in the global tasks array
+                [tasks[taskIndex], tasks[taskToSwapWithIndex]] = [tasks[taskToSwapWithIndex], tasks[taskIndex]];
+
+            } else if (direction === "down" && currentCardIndexInColumn < tasksInColumn.length - 1) {
+                // Find the task to swap with in the global tasks array
+                const taskToSwapWith = tasksInColumn[currentCardIndexInColumn + 1];
+                const taskToSwapWithIndex = tasks.findIndex(t => t.id === taskToSwapWith.id);
+
+                // Perform the swap in the global tasks array
+                [tasks[taskIndex], tasks[taskToSwapWithIndex]] = [tasks[taskToSwapWithIndex], tasks[taskIndex]];
+            }
+            renderBoard(); // Re-render to show changes
+            saveGameState(); // Save state after reordering
+        }
+
+
+        startSprintButton.addEventListener("click", startSprint);
+        finishSprintButton.addEventListener("click", finishSprint);
+        resetButton.addEventListener("click", resetGame);
+        backToDecompositionButton.addEventListener("click", function() {
+            window.location.href = 'feature_decomposition_into_stories.html'; // Adjust path if needed
+        });
+    </script>
+</body>
+</html>
+
